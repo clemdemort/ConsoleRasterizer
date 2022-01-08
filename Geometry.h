@@ -5,7 +5,7 @@
 #define precisioncorrection 0.0001 //this is needed because floating point precision makes it so that some pixels dont meet the requierment for being inside a triangle when they should.
 
 
-//vertex positions MUST be normalised as this is the format the rasterizer will read
+//vertex positions MUST be normalized as this is the format the rasterizer will read
 struct triangle
 {
 	vec2 vertex1; //8
