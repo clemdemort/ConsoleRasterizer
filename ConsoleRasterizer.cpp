@@ -11,7 +11,7 @@
 void loop();
 char draw(vec2 coord, triangle* list);
 void gotoxy(int column, int line);
-vec2 normalise(vec2 coord);
+vec2 normalize(vec2 coord);
 
 
 //initialises our object buffer as a global entity so that we can use it's data from anywhere
@@ -74,7 +74,7 @@ void loop()
             for (int x = 0; x < Width; x++)
             {
                 coords.x = x;
-                vec2 c = normalise(coords);
+                vec2 c = normalize(coords);
                 screenbuffer[(y * Width) + x] = draw(c, Buffer.data);
             }
             screenbuffer[(y * Width)] = '\n';
@@ -97,7 +97,7 @@ char draw(vec2 coord, triangle* list)
     return Buffer.rasterize(coord);
 }
 //normalises screen coordinates
-vec2 normalise(vec2 coord)
+vec2 normalize(vec2 coord)
 {
     vec2 ncoord;
     ncoord.x = float(2.0 * coord.x / Width) - 1.0; 
