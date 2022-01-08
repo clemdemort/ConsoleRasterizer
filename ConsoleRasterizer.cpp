@@ -96,7 +96,7 @@ char draw(vec2 coord, triangle* list)
 {
     return Buffer.rasterize(coord);
 }
-//normalises screen coordinates
+//normalizes screen coordinates
 vec2 normalize(vec2 coord)
 {
     vec2 ncoord;
