@@ -1,0 +1,32 @@
+//made by clemdemort 07/01/2022
+#ifndef vec_H
+#define vec_H
+//a vector struct holding two values
+struct vec2
+{
+	float x;
+	float y;
+};
+//a Matrix struct holding four values
+struct Mat2
+{
+	float Mat[4];
+};
+//product of two vectors
+vec2 V2product(vec2 V1, vec2 V2)
+{
+	vec2 result;
+	result.x = V1.x * V2.x;
+	result.y = V1.y * V2.y;
+	return result;
+}
+//product of a vector and a matrix
+vec2 V2M2product(vec2 V, Mat2 M)
+{
+	vec2 result;
+	result.x = V.x * M.Mat[0] + V.y * M.Mat[2];
+	result.y = V.x * M.Mat[1] + V.y * M.Mat[3];
+	return result;
+}
+//i should probably learn how to use operator overloading...
+#endif
