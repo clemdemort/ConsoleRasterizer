@@ -1,4 +1,4 @@
-﻿//made by clemdemort 07/01/2022
+//made by clemdemort 07/01/2022
 #ifndef geometry_H
 #define geometry_H
 #include "vec.h"
@@ -12,9 +12,9 @@ struct triangle2d
 	vec2 vertex2; //8
 	vec2 vertex3; //8
 	//color is defined as an uint8_t going from 0 to 10
-	uint8_t vCol1; //4
-	uint8_t vCol2; //4
-	uint8_t vCol3; //4
+	uint8_t vCol1; //1
+	uint8_t vCol2; //1
+	uint8_t vCol3; //1
 	float dist;//this will act as some form of priority
 };
 
@@ -28,6 +28,22 @@ struct triangle3d
 	uint8_t vCol2; //4
 	uint8_t vCol3; //4
 };
+//comparaison function for the qsort
+int compare(const void* p, const void* q)
+{
+	float l = ((struct triangle2d *)p)->dist;
+	float r = ((struct triangle2d *)q)->dist;
+	//printf("%f    ", l);
+	if (l < r) {
+		return 1;
+	}
+	if (l > r) {
+		return -1;
+	}
+	if (l == r) {
+		return 0;
+	}
+}
 //simple math to calculate the area of a triangle
 float area(vec2 p1, vec2 p2 , vec2 p3)
 {
@@ -59,20 +75,21 @@ public:
 	//this function will project every vertexes in the buffer then sort by distance and send that data onto the raster buffer
 	void project(vec3 CamPos, float FOV)
 	{
-		triangle2d * temp = new triangle2d[Buffersize];
-		float* temp2 = new float[Buffersize];
+		delete[] RasterBuffer;
+		RasterBuffer = new triangle2d[Buffersize];
 		for (int i = 0; i < Buffersize; i++)
 		{
-			temp[i].vertex1 = vec2{ float(data[i].vertex1.x * FOV / data[i].vertex1.z),float(data[i].vertex1.y * FOV / data[i].vertex1.z) };
-			temp[i].vertex2 = vec2{ float(data[i].vertex2.x * FOV / data[i].vertex2.z),float(data[i].vertex2.y * FOV / data[i].vertex2.z) };
-			temp[i].vertex3 = vec2{ float(data[i].vertex3.x * FOV / data[i].vertex3.z),float(data[i].vertex3.y * FOV / data[i].vertex3.z) };
-			temp[i].vCol1 = data[i].vCol1;
-			temp[i].vCol2 = data[i].vCol2;
-			temp[i].vCol3 = data[i].vCol3;
-			vec3 midpoint = vec3{ (data[i].vertex1.x + data[i].vertex2.x + data[i].vertex3.x) / 3.0,(data[i].vertex1.y + data[i].vertex2.y + data[i].vertex3.y) / 3.0,(data[i].vertex1.z + data[i].vertex2.z + data[i].vertex3.z) / 3.0 };
-			temp2[i] = float(sqrt(pow(midpoint.x - CamPos.x, 2) + pow(midpoint.y - CamPos.y, 2) + pow(midpoint.z - CamPos.z, 2)));
+			RasterBuffer[i].vertex1 = vec2{ float(data[i].vertex1.x * FOV / data[i].vertex1.z),float(data[i].vertex1.y * FOV / data[i].vertex1.z) };
+			RasterBuffer[i].vertex2 = vec2{ float(data[i].vertex2.x * FOV / data[i].vertex2.z),float(data[i].vertex2.y * FOV / data[i].vertex2.z) };
+			RasterBuffer[i].vertex3 = vec2{ float(data[i].vertex3.x * FOV / data[i].vertex3.z),float(data[i].vertex3.y * FOV / data[i].vertex3.z) };
+			RasterBuffer[i].vCol1 = data[i].vCol1;
+			RasterBuffer[i].vCol2 = data[i].vCol2;
+			RasterBuffer[i].vCol3 = data[i].vCol3;
+			vec3 midpoint = vec3{ float(data[i].vertex1.x + data[i].vertex2.x + data[i].vertex3.x) / 3.0f,float(data[i].vertex1.y + data[i].vertex2.y + data[i].vertex3.y) / 3.0f,float(data[i].vertex1.z + data[i].vertex2.z + data[i].vertex3.z) / 3.0f };
+			RasterBuffer[i].dist = float(sqrt(pow(midpoint.x - CamPos.x, 2) + pow(midpoint.y - CamPos.y, 2) + pow(midpoint.z - CamPos.z, 2)));
 		}
-		
+		printf("\n%d\n", sizeof(RasterBuffer[0]));
+		qsort(RasterBuffer, sizeof(RasterBuffer[0])-2, size_t(Buffersize),compare);
 
 	}
 	//rasterizes a point
@@ -94,16 +111,16 @@ public:
 			if (Ta <= Aa + Ba + Ca + precisioncorrection && Ta >= Aa + Ba + Ca - precisioncorrection && Ta > 0) 
 			{	
 				
-				if (data[i].vCol1 == data[i].vCol2 && data[i].vCol2 == data[i].vCol3)
+				if (RasterBuffer[i].vCol1 == RasterBuffer[i].vCol2 && RasterBuffer[i].vCol2 == RasterBuffer[i].vCol3)
 			{	
-					icol = int(data[i].vCol2);
+					icol = int(RasterBuffer[i].vCol2);
 					if (col < 0) { icol = 0; } 
 					if (icol > 9) { icol = 9; }
 					color = brightness[icol];
 					return color;
 				}else{
 				//now we interpolate the color based on the area(my guess on how GL does it)
-				col = ((Aa / Ta) * data[i].vCol1) + ((Ba / Ta) * data[i].vCol2) + ((Ca / Ta) * data[i].vCol3);
+				col = ((Aa / Ta) * RasterBuffer[i].vCol1) + ((Ba / Ta) * RasterBuffer[i].vCol2) + ((Ca / Ta) * RasterBuffer[i].vCol3);
 					icol = int(floor(col));
 				//makes sure we are working within our color palette
 					if (col < 0) { icol = 0; } 
@@ -118,7 +135,11 @@ public:
 		return color;
 	}
 	//cleans the buffer
-	void destroy() { delete[] data; }
+	void destroy() 
+	{
+		delete[] data;
+		delete[] RasterBuffer;
+	}
 };
 
 #endif
