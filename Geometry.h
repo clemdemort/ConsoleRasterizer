@@ -1,4 +1,4 @@
-﻿//made by clemdemort 07/01/2022
+//made by clemdemort 07/01/2022
 #ifndef geometry_H
 #define geometry_H
 #include "vec.h"
