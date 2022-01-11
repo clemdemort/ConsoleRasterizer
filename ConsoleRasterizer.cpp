@@ -34,11 +34,9 @@ void gotoxy(int column, int line)
         coord
     );
 }
-void cube(int Bpos,vec2 UR1, vec2 UL1, vec2 DR1, vec2 DL1, vec2 UR2, vec2 UL2 ,vec2 DR2,vec2 DL2)
+void cube(int Bpos,vec3 UR1, vec3 UL1, vec3 DR1, vec3 DL1, vec3 UR2, vec3 UL2 ,vec3 DR2,vec3 DL2)
 {
-    //here we generate the buffer and create a triangle to go inside it
-    Buffer.generate(1);
-    triangle vertexes;
+    triangle3d vertexes;
     vertexes.vertex1 = UL1;
     vertexes.vertex2 = UR1;
     vertexes.vertex3 = DR1;
@@ -153,36 +151,27 @@ void loop()
                  sin(t) ,0, cos(t)
         };
         vec3 co1 = V3M3product(V3M3product(vec3{ 0.5,0.5,-0.5 }, rotY), rotX);
-        co1.z += 1;
         vec3 co2 = V3M3product(V3M3product(vec3{ -0.5,0.5,-0.5 }, rotY), rotX);
-        co2.z += 1;
         vec3 co3 = V3M3product(V3M3product(vec3{ 0.5,-0.5,-0.5 }, rotY), rotX);
-        co3.z += 1;
         vec3 co4 = V3M3product(V3M3product(vec3{ -0.5,-0.5,-0.5 }, rotY), rotX);
-        co4.z += 1;
         vec3 co5 = V3M3product(V3M3product(vec3{ 0.5,0.5,0.5 }, rotY), rotX);
-        co5.z += 1;
         vec3 co6 = V3M3product(V3M3product(vec3{ -0.5,0.5,0.5 }, rotY), rotX);
-        co6.z += 1;
         vec3 co7 = V3M3product(V3M3product(vec3{ 0.5,-0.5,0.5 }, rotY), rotX);
-        co7.z += 1;
         vec3 co8 = V3M3product(V3M3product(vec3{ -0.5,-0.5,0.5 }, rotY),rotX);
-        co8.z += 1;
-        cube(0, 
-            project(co1),
-            project(co2),
-            project(co3),
-            project(co4),
-            project(co5),
-            project(co6),
-            project(co7),
-            project(co8));
+        co1.z += 1.5;
+        co2.z += 1.5;
+        co3.z += 1.5;
+        co4.z += 1.5;
+        co5.z += 1.5;
+        co6.z += 1.5;
+        co7.z += 1.5;
+        co8.z += 1.5;
+        cube(0, co1,co2,co3,co4,co5,co6,co7,co8);
+
 
         float starttimer = clock() / 1000.0;//division by 1000 because we want to use seconds
-        Buffer.data[0].vertex1 = V2M2product(vertexes.vertex1, rot);
-        Buffer.data[0].vertex2 = V2M2product(vertexes.vertex2, rot);
-        Buffer.data[0].vertex3 = V2M2product(vertexes.vertex3, rot);
         //resets the screen position each frame
+        Buffer.project(vec3{ 0,0,0 }, FOV);
         gotoxy(0, 1);
         fflush(stdout);
         count = 0;
