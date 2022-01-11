@@ -95,21 +95,21 @@ public:
 			{	
 				
 				if (data[i].vCol1 == data[i].vCol2 && data[i].vCol2 == data[i].vCol3)
-				{
+			{	
 					icol = int(data[i].vCol2);
 					if (col < 0) { icol = 0; } 
 					if (icol > 9) { icol = 9; }
 					color = brightness[icol];
 					return color;
 				}else{
-					//now we interpolate the color based on the area(my guess on how GL does it)
-					col = ((Aa / Ta) * data[i].vCol1) + ((Ba / Ta) * data[i].vCol2) + ((Ca / Ta) * data[i].vCol3);
+				//now we interpolate the color based on the area(my guess on how GL does it)
+				col = ((Aa / Ta) * data[i].vCol1) + ((Ba / Ta) * data[i].vCol2) + ((Ca / Ta) * data[i].vCol3);
 					icol = int(floor(col));
-					//makes sure we are working within our color palette
+				//makes sure we are working within our color palette
 					if (col < 0) { icol = 0; } 
 					if (col > 9) { icol = 9; }
-					//gets the color from our color(char) palette
-					color = brightness[icol];
+				//gets the color from our color(char) palette
+				color = brightness[icol];
 					return color;
 				}
 			}

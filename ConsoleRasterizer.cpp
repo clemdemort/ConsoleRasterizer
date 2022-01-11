@@ -37,6 +37,7 @@ void gotoxy(int column, int line)
 void cube(int Bpos,vec2 UR1, vec2 UL1, vec2 DR1, vec2 DL1, vec2 UR2, vec2 UL2 ,vec2 DR2,vec2 DL2)
 {
     //here we generate the buffer and create a triangle to go inside it
+    Buffer.generate(1);
     triangle vertexes;
     vertexes.vertex1 = UL1;
     vertexes.vertex2 = UR1;
@@ -178,6 +179,9 @@ void loop()
             project(co8));
 
         float starttimer = clock() / 1000.0;//division by 1000 because we want to use seconds
+        Buffer.data[0].vertex1 = V2M2product(vertexes.vertex1, rot);
+        Buffer.data[0].vertex2 = V2M2product(vertexes.vertex2, rot);
+        Buffer.data[0].vertex3 = V2M2product(vertexes.vertex3, rot);
         //resets the screen position each frame
         gotoxy(0, 1);
         fflush(stdout);
