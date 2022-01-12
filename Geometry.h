@@ -33,16 +33,7 @@ int compare(const void* p, const void* q)
 {
 	float l = ((struct triangle2d *)p)->dist;
 	float r = ((struct triangle2d *)q)->dist;
-	//printf("%f    ", l);
-	if (l < r) {
-		return 1;
-	}
-	if (l > r) {
-		return -1;
-	}
-	if (l == r) {
-		return 0;
-	}
+	return (l > r) - (l < r);
 }
 //simple math to calculate the area of a triangle
 float area(vec2 p1, vec2 p2 , vec2 p3)
@@ -88,8 +79,8 @@ public:
 			vec3 midpoint = vec3{ float(data[i].vertex1.x + data[i].vertex2.x + data[i].vertex3.x) / 3.0f,float(data[i].vertex1.y + data[i].vertex2.y + data[i].vertex3.y) / 3.0f,float(data[i].vertex1.z + data[i].vertex2.z + data[i].vertex3.z) / 3.0f };
 			RasterBuffer[i].dist = float(sqrt(pow(midpoint.x - CamPos.x, 2) + pow(midpoint.y - CamPos.y, 2) + pow(midpoint.z - CamPos.z, 2)));
 		}
-		printf("\n%d\n", sizeof(RasterBuffer[0]));
-		//qsort(RasterBuffer, sizeof(RasterBuffer[0])-2, size_t(Buffersize),compare);
+		
+		qsort(RasterBuffer, Buffersize, sizeof(RasterBuffer[0]),compare);
 
 	}
 	//rasterizes a point
