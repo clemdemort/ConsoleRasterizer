@@ -89,7 +89,7 @@ public:
 			RasterBuffer[i].dist = float(sqrt(pow(midpoint.x - CamPos.x, 2) + pow(midpoint.y - CamPos.y, 2) + pow(midpoint.z - CamPos.z, 2)));
 		}
 		printf("\n%d\n", sizeof(RasterBuffer[0]));
-		qsort(RasterBuffer, sizeof(RasterBuffer[0])-2, size_t(Buffersize),compare);
+		//qsort(RasterBuffer, sizeof(RasterBuffer[0])-2, size_t(Buffersize),compare);
 
 	}
 	//rasterizes a point
