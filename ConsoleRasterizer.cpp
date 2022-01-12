@@ -1,4 +1,5 @@
 //made by clemdemort 07/01/2022
+//working build 12/01/2022
 #include <iostream>
 #include <windows.h>
 #include <time.h>
@@ -7,7 +8,7 @@
 
 #define Width 77
 #define Height 77
-#define FOV 0.5
+#define FOV 1.0
 
 void loop();
 char draw(vec2 coord);
@@ -127,9 +128,7 @@ void cube(int Bpos,vec3 UR1, vec3 UL1, vec3 DR1, vec3 DL1, vec3 UR2, vec3 UL2 ,v
 
 void loop()
 {
-    
     Buffer.generate(12);
-
     char* screenbuffer = new char[Width * Height];
     float t = 0;
     float r = 0;
@@ -137,6 +136,7 @@ void loop()
     vec2 coords;
     Mat3 rotX;
     Mat3 rotY;
+    Mat3 rotZ;
     float ElapsedTime = 0;
     int count;
     while (1)
@@ -150,23 +150,27 @@ void loop()
                  0      ,1,      0,
                  sin(t) ,0, cos(t)
         };
-        vec3 co1 = V3M3product(V3M3product(vec3{ 0.5,0.5,-0.5 }, rotY), rotX);
-        vec3 co2 = V3M3product(V3M3product(vec3{ -0.5,0.5,-0.5 }, rotY), rotX);
-        vec3 co3 = V3M3product(V3M3product(vec3{ 0.5,-0.5,-0.5 }, rotY), rotX);
-        vec3 co4 = V3M3product(V3M3product(vec3{ -0.5,-0.5,-0.5 }, rotY), rotX);
-        vec3 co5 = V3M3product(V3M3product(vec3{ 0.5,0.5,0.5 }, rotY), rotX);
-        vec3 co6 = V3M3product(V3M3product(vec3{ -0.5,0.5,0.5 }, rotY), rotX);
-        vec3 co7 = V3M3product(V3M3product(vec3{ 0.5,-0.5,0.5 }, rotY), rotX);
-        vec3 co8 = V3M3product(V3M3product(vec3{ -0.5,-0.5,0.5 }, rotY),rotX);
-        co1.z += 1;
-        co2.z += 1;
-        co3.z += 1;
-        co4.z += 1;
-        co5.z += 1;
-        co6.z += 1;
-        co7.z += 1;
-        co8.z += 1;
-        cube(0, co1,co2,co3,co4,co5,co6,co7,co8);
+        rotZ = { 1,      0,      0,
+                 0, cos(t),-sin(t),
+                 0, sin(t), cos(t)
+        };
+        vec3 co1 = V3M3product(V3M3product(V3M3product(vec3{ 0.5,0.5,-0.5 }, rotY), rotX),rotZ);
+        vec3 co2 = V3M3product(V3M3product(V3M3product(vec3{ -0.5,0.5,-0.5 }, rotY), rotX), rotZ);
+        vec3 co3 = V3M3product(V3M3product(V3M3product(vec3{ 0.5,-0.5,-0.5 }, rotY), rotX), rotZ);
+        vec3 co4 = V3M3product(V3M3product(V3M3product(vec3{ -0.5,-0.5,-0.5 }, rotY), rotX), rotZ);
+        vec3 co5 = V3M3product(V3M3product(V3M3product(vec3{ 0.5,0.5,0.5 }, rotY), rotX), rotZ);
+        vec3 co6 = V3M3product(V3M3product(V3M3product(vec3{ -0.5,0.5,0.5 }, rotY), rotX), rotZ);
+        vec3 co7 = V3M3product(V3M3product(V3M3product(vec3{ 0.5,-0.5,0.5 }, rotY), rotX), rotZ);
+        vec3 co8 = V3M3product(V3M3product(V3M3product(vec3{ -0.5,-0.5,0.5 }, rotY),rotX), rotZ);
+        co1.z += 2;
+        co2.z += 2;
+        co3.z += 2;
+        co4.z += 2;
+        co5.z += 2;
+        co6.z += 2;
+        co7.z += 2;
+        co8.z += 2;
+        cube(0, co1, co2, co3, co4, co5, co6, co7, co8);
         
 
 
@@ -174,7 +178,6 @@ void loop()
         //resets the screen position each frame
         Buffer.project(vec3{ 0,0,0 }, FOV);
         gotoxy(0, 1);
-        fflush(stdout);
         count = 0;
         for (int y = 0; y < Height; y++)
         {

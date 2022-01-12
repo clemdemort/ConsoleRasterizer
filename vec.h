@@ -1,4 +1,5 @@
 //made by clemdemort 07/01/2022
+//working build 12/01/2022
 #ifndef vec_H
 #define vec_H
 //a vector struct holding two values

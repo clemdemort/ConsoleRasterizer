@@ -1,8 +1,9 @@
 //made by clemdemort 07/01/2022
+//working build 12/01/2022
 #ifndef geometry_H
 #define geometry_H
 #include "vec.h"
-#define precisioncorrection 0.0001 //this is needed because floating point precision makes it so that some pixels dont meet the requierment for being inside a triangle when they should.
+#define precisioncorrection 0.00005 //this is needed because floating point precision makes it so that some pixels dont meet the requierment for being inside a triangle when they should.
 
 
 //vertex positions MUST be normalized as this is the format the rasterizer will read
@@ -70,16 +71,16 @@ public:
 		RasterBuffer = new triangle2d[Buffersize];
 		for (int i = 0; i < Buffersize; i++)
 		{
-			RasterBuffer[i].vertex1 = vec2{ float(data[i].vertex1.x * FOV / data[i].vertex1.z),float(data[i].vertex1.y * FOV / data[i].vertex1.z) };
-			RasterBuffer[i].vertex2 = vec2{ float(data[i].vertex2.x * FOV / data[i].vertex2.z),float(data[i].vertex2.y * FOV / data[i].vertex2.z) };
-			RasterBuffer[i].vertex3 = vec2{ float(data[i].vertex3.x * FOV / data[i].vertex3.z),float(data[i].vertex3.y * FOV / data[i].vertex3.z) };
+			RasterBuffer[i].vertex1 = vec2{ float((data[i].vertex1.x - CamPos.x) * FOV / (data[i].vertex1.z - CamPos.z)),float((data[i].vertex1.y - CamPos.y) * FOV / (data[i].vertex1.z - CamPos.z)) };
+			RasterBuffer[i].vertex2 = vec2{ float((data[i].vertex2.x - CamPos.x) * FOV / (data[i].vertex2.z - CamPos.z)),float((data[i].vertex2.y - CamPos.y) * FOV / (data[i].vertex2.z - CamPos.z)) };
+			RasterBuffer[i].vertex3 = vec2{ float((data[i].vertex3.x - CamPos.x) * FOV / (data[i].vertex3.z - CamPos.z)),float((data[i].vertex3.y - CamPos.y) * FOV / (data[i].vertex3.z - CamPos.z)) };
 			RasterBuffer[i].vCol1 = data[i].vCol1;
 			RasterBuffer[i].vCol2 = data[i].vCol2;
 			RasterBuffer[i].vCol3 = data[i].vCol3;
 			vec3 midpoint = vec3{ float(data[i].vertex1.x + data[i].vertex2.x + data[i].vertex3.x) / 3.0f,float(data[i].vertex1.y + data[i].vertex2.y + data[i].vertex3.y) / 3.0f,float(data[i].vertex1.z + data[i].vertex2.z + data[i].vertex3.z) / 3.0f };
-			RasterBuffer[i].dist = float(sqrt(pow(midpoint.x - CamPos.x, 2) + pow(midpoint.y - CamPos.y, 2) + pow(midpoint.z - CamPos.z, 2)));
+			RasterBuffer[i].dist = float(/*sqrt*/(pow(CamPos.x - midpoint.x, 2) + pow(CamPos.y - midpoint.y, 2) + pow(CamPos.z - midpoint.z, 2))); //here we get rid of the square root since it is expensive and we only need to know if the distance of pointA is bigger than pointB
 		}
-		
+		//sorting the geometry by closest to furthest from the camera
 		qsort(RasterBuffer, Buffersize, sizeof(RasterBuffer[0]),compare);
 
 	}
