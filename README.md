@@ -16,4 +16,4 @@ Then, when you'll launch the application you will most likely come acros some we
 ![rastertuto2](https://user-images.githubusercontent.com/62178977/148650847-9133f223-a7ed-4b06-8778-87f674618cef.JPG)
 
 3/ The setup is now done and the console should look a bit like this, if not, try to scale it up a bit and it should work!
-![rastertuto3](https://user-images.githubusercontent.com/62178977/148650851-3c68ee52-9289-4ad3-9df1-5c72b88ea732.JPG)
+![image](https://user-images.githubusercontent.com/62178977/149216934-41bc96ba-ae29-49e5-9b1f-b80da0b35210.png)
