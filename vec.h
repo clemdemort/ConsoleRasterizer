@@ -39,6 +39,14 @@ vec2 V2M2product(vec2 V, Mat2 M)
 	result.y = V.x * M.Mat[1] + V.y * M.Mat[3];
 	return result;
 }
+vec3 V3product(vec3 V1, vec3 V2)
+{
+	vec3 result;
+	result.x = V1.x * V2.x;
+	result.y = V1.y * V2.y;
+	result.z = V1.z * V2.z;
+	return result;
+}
 vec3 V3M3product(vec3 V, Mat3 M)
 {
 	vec3 result;
