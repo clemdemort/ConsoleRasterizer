@@ -176,7 +176,7 @@ void loop()
 
         float starttimer = clock() / 1000.0;//division by 1000 because we want to use seconds
         //resets the screen position each frame
-        Buffer.project(vec3{ 0,0,0 }, FOV);
+        Buffer.project(vec3{ 0,0,0 }, vec3{0,0,0}, FOV);
         gotoxy(0, 1);
         count = 0;
         for (int y = 0; y < Height; y++)

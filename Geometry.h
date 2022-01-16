@@ -65,19 +65,35 @@ public:
 		else { printf("[BUFFER-ERROR]:specified ID was out of the allocated memory!\n"); }
 	}
 	//this function will project every vertexes in the buffer then sort by distance and send that data onto the raster buffer
-	void project(vec3 CamPos, float FOV)
+	void project(vec3 CamPos,vec3 CamRot, float FOV)
 	{
 		delete[] RasterBuffer;
 		RasterBuffer = new triangle2d[Buffersize];
+		Mat3 rotX = { cos(CamRot.x) ,0,-sin(CamRot.x),
+				 0      ,1,      0,
+				 sin(CamRot.x) ,0, cos(CamRot.x)
+		};
+		Mat3 rotY = { 1,      0,      0,
+				 0, cos(CamRot.y),-sin(CamRot.y),
+				 0, sin(CamRot.y), cos(CamRot.y)
+		};
+		Mat3 rotZ = { cos(CamRot.z),-sin(CamRot.z), 0,
+				sin(CamRot.z),cos(CamRot.z),  0,
+				0,   0,         1
+		};
 		for (int i = 0; i < Buffersize; i++)
 		{
-			RasterBuffer[i].vertex1 = vec2{ float((data[i].vertex1.x - CamPos.x) * FOV / (data[i].vertex1.z - CamPos.z)),float((data[i].vertex1.y - CamPos.y) * FOV / (data[i].vertex1.z - CamPos.z)) };
-			RasterBuffer[i].vertex2 = vec2{ float((data[i].vertex2.x - CamPos.x) * FOV / (data[i].vertex2.z - CamPos.z)),float((data[i].vertex2.y - CamPos.y) * FOV / (data[i].vertex2.z - CamPos.z)) };
-			RasterBuffer[i].vertex3 = vec2{ float((data[i].vertex3.x - CamPos.x) * FOV / (data[i].vertex3.z - CamPos.z)),float((data[i].vertex3.y - CamPos.y) * FOV / (data[i].vertex3.z - CamPos.z)) };
+
+			vec3 V1 = V3M3product(V3M3product(V3M3product(data[i].vertex1, rotX),rotY),rotZ);
+			vec3 V2 = V3M3product(V3M3product(V3M3product(data[i].vertex2, rotX), rotY), rotZ);
+			vec3 V3 = V3M3product(V3M3product(V3M3product(data[i].vertex3, rotX), rotY), rotZ);
+			RasterBuffer[i].vertex1 = vec2{ float((V1.x - CamPos.x) * FOV / (V1.z - CamPos.z)),float((V1.y - CamPos.y) * FOV / (V1.z - CamPos.z)) };
+			RasterBuffer[i].vertex2 = vec2{ float((V2.x - CamPos.x) * FOV / (V2.z - CamPos.z)),float((V2.y - CamPos.y) * FOV / (V2.z - CamPos.z)) };
+			RasterBuffer[i].vertex3 = vec2{ float((V3.x - CamPos.x) * FOV / (V3.z - CamPos.z)),float((V3.y - CamPos.y) * FOV / (V3.z - CamPos.z)) };
 			RasterBuffer[i].vCol1 = data[i].vCol1;
 			RasterBuffer[i].vCol2 = data[i].vCol2;
 			RasterBuffer[i].vCol3 = data[i].vCol3;
-			vec3 midpoint = vec3{ float(data[i].vertex1.x + data[i].vertex2.x + data[i].vertex3.x) / 3.0f,float(data[i].vertex1.y + data[i].vertex2.y + data[i].vertex3.y) / 3.0f,float(data[i].vertex1.z + data[i].vertex2.z + data[i].vertex3.z) / 3.0f };
+			vec3 midpoint = vec3{ float(V1.x + V2.x + V3.x) / 3.0f,float(V1.y + V2.y + V3.y) / 3.0f,float(V1.z + V2.z + V3.z) / 3.0f };
 			RasterBuffer[i].dist = float(/*sqrt*/(pow(CamPos.x - midpoint.x, 2) + pow(CamPos.y - midpoint.y, 2) + pow(CamPos.z - midpoint.z, 2))); //here we get rid of the square root since it is expensive and we only need to know if the distance of pointA is bigger than pointB
 		}
 		//sorting the geometry by closest to furthest from the camera
