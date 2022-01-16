@@ -47,6 +47,22 @@ vec3 V3product(vec3 V1, vec3 V2)
 	result.z = V1.z * V2.z;
 	return result;
 }
+vec3 V3add(vec3 V1,vec3 V2)
+{
+	vec3 result;
+	result.x = V1.x + V2.x;
+	result.y = V1.y + V2.y;
+	result.z = V1.z + V2.z;
+	return result;
+}
+vec3 V3sub(vec3 V1,vec3 V2)
+{
+	vec3 result;
+	result.x = V1.x - V2.x;
+	result.y = V1.y - V2.y;
+	result.z = V1.z - V2.z;
+	return result;
+}
 vec3 V3M3product(vec3 V, Mat3 M)
 {
 	vec3 result;

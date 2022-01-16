@@ -3,9 +3,12 @@
 #ifndef geometry_H
 #define geometry_H
 #include "vec.h"
-#define precisioncorrection 0.00005 //this is needed because floating point precision makes it so that some pixels dont meet the requierment for being inside a triangle when they should.
+#define precisioncorrection 0.00004 //this is needed because floating point precision makes it so that some pixels dont meet the requierment for being inside a triangle when they should.
 
-
+struct Camera {
+	vec3 CamPos;
+	vec3 CamRot;
+};
 //vertex positions MUST be normalized as this is the format the rasterizer will read
 struct triangle2d
 {
@@ -65,36 +68,36 @@ public:
 		else { printf("[BUFFER-ERROR]:specified ID was out of the allocated memory!\n"); }
 	}
 	//this function will project every vertexes in the buffer then sort by distance and send that data onto the raster buffer
-	void project(vec3 CamPos,vec3 CamRot, float FOV)
+	void project(Camera cam, float FOV)
 	{
 		delete[] RasterBuffer;
 		RasterBuffer = new triangle2d[Buffersize];
-		Mat3 rotX = { cos(CamRot.x) ,0,-sin(CamRot.x),
+		Mat3 rotX = { cos(cam.CamRot.x) ,0,-sin(cam.CamRot.x),
 				 0      ,1,      0,
-				 sin(CamRot.x) ,0, cos(CamRot.x)
+				 sin(cam.CamRot.x) ,0, cos(cam.CamRot.x)
 		};
 		Mat3 rotY = { 1,      0,      0,
-				 0, cos(CamRot.y),-sin(CamRot.y),
-				 0, sin(CamRot.y), cos(CamRot.y)
+				 0, cos(cam.CamRot.y),-sin(cam.CamRot.y),
+				 0, sin(cam.CamRot.y), cos(cam.CamRot.y)
 		};
-		Mat3 rotZ = { cos(CamRot.z),-sin(CamRot.z), 0,
-				sin(CamRot.z),cos(CamRot.z),  0,
+		Mat3 rotZ = { cos(cam.CamRot.z),-sin(cam.CamRot.z), 0,
+				sin(cam.CamRot.z),cos(cam.CamRot.z),  0,
 				0,   0,         1
 		};
 		for (int i = 0; i < Buffersize; i++)
 		{
 
-			vec3 V1 = V3M3product(V3M3product(V3M3product(data[i].vertex1, rotX),rotY),rotZ);
-			vec3 V2 = V3M3product(V3M3product(V3M3product(data[i].vertex2, rotX), rotY), rotZ);
-			vec3 V3 = V3M3product(V3M3product(V3M3product(data[i].vertex3, rotX), rotY), rotZ);
-			RasterBuffer[i].vertex1 = vec2{ float((V1.x - CamPos.x) * FOV / (V1.z - CamPos.z)),float((V1.y - CamPos.y) * FOV / (V1.z - CamPos.z)) };
-			RasterBuffer[i].vertex2 = vec2{ float((V2.x - CamPos.x) * FOV / (V2.z - CamPos.z)),float((V2.y - CamPos.y) * FOV / (V2.z - CamPos.z)) };
-			RasterBuffer[i].vertex3 = vec2{ float((V3.x - CamPos.x) * FOV / (V3.z - CamPos.z)),float((V3.y - CamPos.y) * FOV / (V3.z - CamPos.z)) };
+			vec3 V1 = V3M3product(V3M3product(V3M3product(V3sub(data[i].vertex1, cam.CamPos), rotX),rotY),rotZ);
+			vec3 V2 = V3M3product(V3M3product(V3M3product(V3sub(data[i].vertex2, cam.CamPos), rotX), rotY), rotZ);
+			vec3 V3 = V3M3product(V3M3product(V3M3product(V3sub(data[i].vertex3, cam.CamPos), rotX), rotY), rotZ);
+			RasterBuffer[i].vertex1 = vec2{ float((V1.x) * FOV / (V1.z)),float((V1.y) * FOV / (V1.z)) };
+			RasterBuffer[i].vertex2 = vec2{ float((V2.x) * FOV / (V2.z)),float((V2.y) * FOV / (V2.z)) };
+			RasterBuffer[i].vertex3 = vec2{ float((V3.x) * FOV / (V3.z)),float((V3.y) * FOV / (V3.z)) };
 			RasterBuffer[i].vCol1 = data[i].vCol1;
 			RasterBuffer[i].vCol2 = data[i].vCol2;
 			RasterBuffer[i].vCol3 = data[i].vCol3;
-			vec3 midpoint = vec3{ float(V1.x + V2.x + V3.x) / 3.0f,float(V1.y + V2.y + V3.y) / 3.0f,float(V1.z + V2.z + V3.z) / 3.0f };
-			RasterBuffer[i].dist = float(/*sqrt*/(pow(CamPos.x - midpoint.x, 2) + pow(CamPos.y - midpoint.y, 2) + pow(CamPos.z - midpoint.z, 2))); //here we get rid of the square root since it is expensive and we only need to know if the distance of pointA is bigger than pointB
+			vec3 midpoint = vec3{ float((V1.x + cam.CamPos.x) + (V2.x + cam.CamPos.x) + (V3.x + cam.CamPos.x)) / 3.0f,float((V1.y + cam.CamPos.y) + (V2.y + cam.CamPos.y) + (V3.y + cam.CamPos.y)) / 3.0f,float((V1.z + cam.CamPos.z) + (V2.z + cam.CamPos.z) + (V3.z + cam.CamPos.z)) / 3.0f };
+			RasterBuffer[i].dist = float(/*sqrt*/(pow(cam.CamPos.x - midpoint.x, 2) + pow(cam.CamPos.y - midpoint.y, 2) + pow(cam.CamPos.z - midpoint.z, 2))); //here we get rid of the square root since it is expensive and we only need to know if the distance of pointA is bigger than pointB
 		}
 		//sorting the geometry by closest to furthest from the camera
 		qsort(RasterBuffer, Buffersize, sizeof(RasterBuffer[0]),compare);

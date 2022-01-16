@@ -16,7 +16,7 @@ void gotoxy(int column, int line);
 vec2 normalize(vec2 coord);
 void cube(int Bpos, vec2 corner1, vec2 corner2, vec2 corner3, vec2 corner4, vec2 corner5, vec2 corner6, vec2 corner7, vec2 corner8);
 
-
+Camera cam = { vec3{0,5,-20},vec3{0,0,0} };
 //initialises our object buffer as a global entity so that we can use it's data from anywhere
 ObjectBuffer Buffer;
 int main()
@@ -34,6 +34,46 @@ void gotoxy(int column, int line)
         GetStdHandle(STD_OUTPUT_HANDLE),
         coord
     );
+}
+void userinput(float ElapsedTime)
+{
+    Mat3 rotX = { cos(-cam.CamRot.x) ,0,-sin(-cam.CamRot.x),
+                 0      ,1,      0,
+                 sin(-cam.CamRot.x) ,0, cos(-cam.CamRot.x)
+    };
+    Mat3 rotY = { 1,      0,      0,
+                0, cos(-cam.CamRot.y),-sin(-cam.CamRot.y),
+                0, sin(-cam.CamRot.y), cos(-cam.CamRot.y)
+    };
+    Mat3 rotZ = { cos(cam.CamRot.z),-sin(cam.CamRot.z), 0,
+                sin(cam.CamRot.z),cos(cam.CamRot.z),  0,
+                0,   0,         1
+    };
+    if(GetAsyncKeyState((unsigned short)'Z') & 0x8000)//go Forwards
+    {
+        cam.CamPos = V3add(cam.CamPos, V3M3product(V3M3product(V3M3product(vec3{0,0,ElapsedTime}, rotX), rotY), rotZ));
+    }
+    if(GetAsyncKeyState((unsigned short)'S') & 0x8000)//go Backwards
+    {
+        cam.CamPos = V3add(cam.CamPos, V3M3product(V3M3product(V3M3product(vec3{0,0,-ElapsedTime}, rotX), rotY), rotZ));
+    }
+    if(GetAsyncKeyState((unsigned short)'D') & 0x8000)//Look Right
+    {
+        cam.CamRot.x -= ElapsedTime;
+    }
+    if(GetAsyncKeyState((unsigned short)'Q') & 0x8000)//Look Left
+    {
+        cam.CamRot.x += ElapsedTime;
+    }
+    if(GetAsyncKeyState((unsigned short)'E') & 0x8000)//look UP
+    {
+        cam.CamRot.y -= ElapsedTime;
+    }
+    if(GetAsyncKeyState((unsigned short)'A') & 0x8000)//look DOWN
+    {
+        cam.CamRot.y += ElapsedTime;
+    }
+
 }
 void cube(int Bpos,vec3 UR1, vec3 UL1, vec3 DR1, vec3 DL1, vec3 UR2, vec3 UL2 ,vec3 DR2,vec3 DL2)
 {
@@ -124,11 +164,9 @@ void cube(int Bpos,vec3 UR1, vec3 UL1, vec3 DR1, vec3 DL1, vec3 UR2, vec3 UL2 ,v
     Buffer.set(11 + Bpos, vertexes);
     
 }
-
-
 void loop()
 {
-    Buffer.generate(12);
+    Buffer.generate(14);
     char* screenbuffer = new char[Width * Height];
     float t = 0;
     float r = 0;
@@ -154,14 +192,14 @@ void loop()
                  0, cos(t),-sin(t),
                  0, sin(t), cos(t)
         };
-        vec3 co1 = V3M3product(V3M3product(V3M3product(vec3{ 0.5,0.5,-0.5 }, rotY), rotX),rotZ);
-        vec3 co2 = V3M3product(V3M3product(V3M3product(vec3{ -0.5,0.5,-0.5 }, rotY), rotX), rotZ);
-        vec3 co3 = V3M3product(V3M3product(V3M3product(vec3{ 0.5,-0.5,-0.5 }, rotY), rotX), rotZ);
-        vec3 co4 = V3M3product(V3M3product(V3M3product(vec3{ -0.5,-0.5,-0.5 }, rotY), rotX), rotZ);
-        vec3 co5 = V3M3product(V3M3product(V3M3product(vec3{ 0.5,0.5,0.5 }, rotY), rotX), rotZ);
-        vec3 co6 = V3M3product(V3M3product(V3M3product(vec3{ -0.5,0.5,0.5 }, rotY), rotX), rotZ);
-        vec3 co7 = V3M3product(V3M3product(V3M3product(vec3{ 0.5,-0.5,0.5 }, rotY), rotX), rotZ);
-        vec3 co8 = V3M3product(V3M3product(V3M3product(vec3{ -0.5,-0.5,0.5 }, rotY),rotX), rotZ);
+        vec3 co1 = V3add(V3M3product(V3M3product(V3M3product(vec3{  3.5, 3.5,-3.5 }, rotY), rotX), rotZ),vec3{0,3.5,0});
+        vec3 co2 = V3add(V3M3product(V3M3product(V3M3product(vec3{ -3.5, 3.5,-3.5 }, rotY), rotX), rotZ),vec3{0,3.5,0});
+        vec3 co3 = V3add(V3M3product(V3M3product(V3M3product(vec3{  3.5,-3.5,-3.5 }, rotY), rotX), rotZ),vec3{0,3.5,0});
+        vec3 co4 = V3add(V3M3product(V3M3product(V3M3product(vec3{ -3.5,-3.5,-3.5 }, rotY), rotX), rotZ),vec3{0,3.5,0});
+        vec3 co5 = V3add(V3M3product(V3M3product(V3M3product(vec3{  3.5, 3.5, 3.5 }, rotY), rotX), rotZ),vec3{0,3.5,0});
+        vec3 co6 = V3add(V3M3product(V3M3product(V3M3product(vec3{ -3.5, 3.5, 3.5 }, rotY), rotX), rotZ),vec3{0,3.5,0});
+        vec3 co7 = V3add(V3M3product(V3M3product(V3M3product(vec3{  3.5,-3.5, 3.5 }, rotY), rotX), rotZ),vec3{0,3.5,0});
+        vec3 co8 = V3add(V3M3product(V3M3product(V3M3product(vec3{ -3.5,-3.5, 3.5 }, rotY), rotX), rotZ),vec3{0,3.5,0});
         co1.z += 2;
         co2.z += 2;
         co3.z += 2;
@@ -171,12 +209,15 @@ void loop()
         co7.z += 2;
         co8.z += 2;
         cube(0, co1, co2, co3, co4, co5, co6, co7, co8);
-        
+        triangle3d plane1 = { vec3{-10,-2,-10},vec3{10,-2,-10} ,vec3{-10,-2,10},5,5,5 };
+        triangle3d plane2 = { vec3{10,-2,10},vec3{10,-2,-10} ,vec3{-10,-2,10},5,5,5 };
+        Buffer.set(12, plane1);
+        Buffer.set(13, plane2);
 
 
         float starttimer = clock() / 1000.0;//division by 1000 because we want to use seconds
         //resets the screen position each frame
-        Buffer.project(vec3{ 0,0,0 }, vec3{0,0,0}, FOV);
+        Buffer.project(cam, FOV);
         gotoxy(0, 1);
         count = 0;
         for (int y = 0; y < Height; y++)
@@ -196,8 +237,9 @@ void loop()
         //gets the amount of FPS
         float endtimer = clock() / 1000.0;//division by 1000 because we want to use seconds
         ElapsedTime = endtimer - starttimer;
+        userinput(3*ElapsedTime);
         gotoxy(0, 0);
-        printf("FPS: %f", (1.0 / ElapsedTime));
+        printf("FPS: %f      camera Pos = x: %f  y: %f  z: %f", (1.0 / ElapsedTime),cam.CamPos.x, cam.CamPos.y, cam.CamPos.z);
     }
     //cleans stuff up when we dont need it anymore
     delete[] screenbuffer;
