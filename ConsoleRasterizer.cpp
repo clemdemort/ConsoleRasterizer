@@ -6,8 +6,8 @@
 #include "vec.h"
 #include "Geometry.h"
 
-#define Width 77
-#define Height 77
+#define Width 171
+#define Height 91
 #define FOV 1.0
 
 void loop();
@@ -15,13 +15,17 @@ char draw(vec2 coord);
 void gotoxy(int column, int line);
 vec2 normalize(vec2 coord);
 void cube(int Bpos, vec2 corner1, vec2 corner2, vec2 corner3, vec2 corner4, vec2 corner5, vec2 corner6, vec2 corner7, vec2 corner8);
+bool userinput(float ElapsedTime);
 
 Camera cam = { vec3{0,5,-20},vec3{0,0,0} };
 //initialises our object buffer as a global entity so that we can use it's data from anywhere
 ObjectBuffer Buffer;
 int main()
 {
+    SetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE), CONSOLE_FULLSCREEN_MODE, 0);
     loop();
+    system("CLS");
+    SetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE), CONSOLE_WINDOWED_MODE, 0);
     return 1;
 }
 //goes to X Y location in the console
@@ -34,46 +38,6 @@ void gotoxy(int column, int line)
         GetStdHandle(STD_OUTPUT_HANDLE),
         coord
     );
-}
-void userinput(float ElapsedTime)
-{
-    Mat3 rotX = { cos(-cam.CamRot.x) ,0,-sin(-cam.CamRot.x),
-                 0      ,1,      0,
-                 sin(-cam.CamRot.x) ,0, cos(-cam.CamRot.x)
-    };
-    Mat3 rotY = { 1,      0,      0,
-                0, cos(-cam.CamRot.y),-sin(-cam.CamRot.y),
-                0, sin(-cam.CamRot.y), cos(-cam.CamRot.y)
-    };
-    Mat3 rotZ = { cos(cam.CamRot.z),-sin(cam.CamRot.z), 0,
-                sin(cam.CamRot.z),cos(cam.CamRot.z),  0,
-                0,   0,         1
-    };
-    if(GetAsyncKeyState((unsigned short)'Z') & 0x8000)//go Forwards
-    {
-        cam.CamPos = V3add(cam.CamPos, V3M3product(V3M3product(V3M3product(vec3{0,0,ElapsedTime}, rotX), rotY), rotZ));
-    }
-    if(GetAsyncKeyState((unsigned short)'S') & 0x8000)//go Backwards
-    {
-        cam.CamPos = V3add(cam.CamPos, V3M3product(V3M3product(V3M3product(vec3{0,0,-ElapsedTime}, rotX), rotY), rotZ));
-    }
-    if(GetAsyncKeyState((unsigned short)'D') & 0x8000)//Look Right
-    {
-        cam.CamRot.x -= ElapsedTime;
-    }
-    if(GetAsyncKeyState((unsigned short)'Q') & 0x8000)//Look Left
-    {
-        cam.CamRot.x += ElapsedTime;
-    }
-    if(GetAsyncKeyState((unsigned short)'E') & 0x8000)//look UP
-    {
-        cam.CamRot.y -= ElapsedTime;
-    }
-    if(GetAsyncKeyState((unsigned short)'A') & 0x8000)//look DOWN
-    {
-        cam.CamRot.y += ElapsedTime;
-    }
-
 }
 void cube(int Bpos,vec3 UR1, vec3 UL1, vec3 DR1, vec3 DL1, vec3 UR2, vec3 UL2 ,vec3 DR2,vec3 DL2)
 {
@@ -177,7 +141,8 @@ void loop()
     Mat3 rotZ;
     float ElapsedTime = 0;
     int count;
-    while (1)
+    bool loop = 1;
+    while (loop)
     {
         t = clock() / 1000.0;
         rotX = { cos(t),-sin(t), 0,
@@ -237,10 +202,11 @@ void loop()
         //gets the amount of FPS
         float endtimer = clock() / 1000.0;//division by 1000 because we want to use seconds
         ElapsedTime = endtimer - starttimer;
-        userinput(3*ElapsedTime);
+        loop = userinput(3*ElapsedTime);
         gotoxy(0, 0);
-        printf("FPS: %f      camera Pos = x: %f  y: %f  z: %f", (1.0 / ElapsedTime),cam.CamPos.x, cam.CamPos.y, cam.CamPos.z);
+        printf("FPS: %f      camera Pos = x: %f  y: %f  z: %f           press:'esc' to exit", (1.0 / ElapsedTime),cam.CamPos.x, cam.CamPos.y, cam.CamPos.z);
     }
+    end:
     //cleans stuff up when we dont need it anymore
     delete[] screenbuffer;
     Buffer.destroy();
@@ -257,4 +223,49 @@ vec2 normalize(vec2 coord)
     ncoord.x = float(2.0 * coord.x / Width) - 1.0; 
     ncoord.y = -float(2.0 * coord.y / Height) + 1.0;//we want Y = 1 to be on top rather than down
     return ncoord;
+}
+bool userinput(float ElapsedTime)
+{
+    Mat3 rotX = { cos(-cam.CamRot.x) ,0,-sin(-cam.CamRot.x),
+                 0      ,1,      0,
+                 sin(-cam.CamRot.x) ,0, cos(-cam.CamRot.x)
+    };
+    Mat3 rotY = { 1,      0,      0,
+                0, cos(-cam.CamRot.y),-sin(-cam.CamRot.y),
+                0, sin(-cam.CamRot.y), cos(-cam.CamRot.y)
+    };
+    Mat3 rotZ = { cos(cam.CamRot.z),-sin(cam.CamRot.z), 0,
+                sin(cam.CamRot.z),cos(cam.CamRot.z),  0,
+                0,   0,         1
+    };
+    if (GetAsyncKeyState((unsigned short)'Z') & 0x8000)//go Forwards
+    {
+        cam.CamPos = V3add(cam.CamPos, V3M3product(V3M3product(V3M3product(vec3{ 0,0,ElapsedTime }, rotX), rotY), rotZ));
+    }
+    if (GetAsyncKeyState((unsigned short)'S') & 0x8000)//go Backwards
+    {
+        cam.CamPos = V3add(cam.CamPos, V3M3product(V3M3product(V3M3product(vec3{ 0,0,-ElapsedTime }, rotX), rotY), rotZ));
+    }
+    if (GetAsyncKeyState((unsigned short)'D') & 0x8000)//Look Right
+    {
+        cam.CamRot.x -= ElapsedTime;
+    }
+    if (GetAsyncKeyState((unsigned short)'Q') & 0x8000)//Look Left
+    {
+        cam.CamRot.x += ElapsedTime;
+    }
+    if (GetAsyncKeyState((unsigned short)'E') & 0x8000)//look UP
+    {
+        cam.CamRot.y -= ElapsedTime;
+    }
+    if (GetAsyncKeyState((unsigned short)'A') & 0x8000)//look DOWN
+    {
+        cam.CamRot.y += ElapsedTime;
+    }
+    if (GetAsyncKeyState((unsigned short)27) & 0x8000)//QUIT
+    {
+        return false;
+    }else{
+        return true;
+    }
 }
